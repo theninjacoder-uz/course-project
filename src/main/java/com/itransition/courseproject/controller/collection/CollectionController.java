@@ -2,15 +2,11 @@ package com.itransition.courseproject.controller.collection;
 
 import com.itransition.courseproject.controller.CRUDController;
 import com.itransition.courseproject.dto.request.collection.CollectionRequest;
-import com.itransition.courseproject.exception.FileProcessingException;
 import com.itransition.courseproject.service.collection.CollectionService;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
 
 import static com.itransition.courseproject.controller.ControllerUtils.COLLECTION_URI;
 
@@ -44,23 +40,11 @@ public class CollectionController extends CRUDController<CollectionService, Long
     }
 
     @GetMapping("/csv")
-    public ResponseEntity<?> createCSV(
+    public void createCSV(
             @RequestParam(name = "collection_id") Long collectionId,
-            @RequestParam(name = "lang") String lang
+            @RequestParam(name = "lang") String lang,
+            HttpServletResponse response
     ) {
-        Resource resource = service.loadCSVFile(collectionId, lang);
-        try {
-            String contentType = "application/octet-stream";
-            String headerValue = "attachment; filename=\"" + resource.getFilename() + "\"";
-            return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, headerValue).body(resource);
-
-        } finally {
-            try {
-                service.scheduleForDeletion(resource.getFile().toPath(), 60);
-            } catch (IOException e) {
-                throw new FileProcessingException("csv file creation error", "ошибка создания файла csv");
-            }
-        }
+        service.loadCSVFile(response, collectionId, lang);
     }
 }

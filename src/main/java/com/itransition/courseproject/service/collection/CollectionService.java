@@ -17,14 +17,13 @@ import com.itransition.courseproject.repository.UserRepository;
 import com.itransition.courseproject.repository.collection.*;
 import com.itransition.courseproject.service.CRUDService;
 import com.itransition.courseproject.util.CSVUtil;
+import com.opencsv.CSVWriter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -45,11 +44,6 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
-    private static final TimeUnit UNITS = TimeUnit.SECONDS;
-    private static final  String DEFAULT_SORT_FIELD = "creationDate";
-
 
     @Override
     public APIResponse create(CollectionRequest collectionRequest) {
@@ -157,23 +151,23 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
                 }).collect(Collectors.toList());
     }
 
-    public Resource loadCSVFile(long collectionId, String lang) {
+    public void loadCSVFile(HttpServletResponse response, long collectionId, String lang) {
         Collection collection = collectionRepository.findById(collectionId).orElseThrow(() -> {
             throw new ResourceNotFoundException(COLLECTION_ENG, COLLECTION_RUS, String.valueOf(collectionId));
         });
-        List<Field> fieldList = fieldRepository.findAllByCollection_IdOrderByIdAsc(collectionId);
-        List<FieldValue> fieldValueList = fieldValueRepository.findAllByItem_CollectionIdOrderByItem_IdAscField_IdAsc(collectionId);
-        String filePath = CSVUtil.ofCollection(lang, collection, fieldList, fieldValueList);
-        return CSVUtil.load(filePath);
+        try (CSVWriter csvWriter = new CSVWriter(response.getWriter())){
+            List<Field> fieldList = fieldRepository.findAllByCollection_IdOrderByIdAsc(collectionId);
+            List<FieldValue> fieldValueList = fieldValueRepository.findAllByItem_CollectionIdOrderByItem_IdAscField_IdAsc(collectionId);
+            response.setContentType("text/csv");
+            response.setHeader("Content-Disposition", "attachment; filename=" + collection.getName() + ".csv");
+            List<String[]> csvContent = CSVUtil.ofCollection(lang, collection, fieldList, fieldValueList);
+            for (String[] strings : csvContent) {
+                csvWriter.writeNext(strings);
+            }
+        } catch (IOException e) {
+            throw new FileProcessingException("csv file creation error", "ошибка создания файла csv");
+        }
+
     }
 
-    public void scheduleForDeletion(Path path, long delay) {
-        executor.schedule(() -> {
-            try {
-                Files.delete(path);
-            } catch (IOException e) {
-                throw new FileProcessingException("csv file creation error", "ошибка создания файла csv");
-            }
-        }, delay, UNITS);
-    }
 }
