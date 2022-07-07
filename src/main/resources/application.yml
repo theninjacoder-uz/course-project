@@ -4,9 +4,9 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/itransition_course_db
+    url: jdbc:postgresql://courseproject.cvocifm5pfxr.us-east-1.rds.amazonaws.com:5432/postgres
     username: postgres
-    password: 8
+    password: postgres
   jpa:
     show-sql: true
     hibernate:
@@ -17,8 +17,8 @@ spring:
       client:
         registration:
           google:
-            clientId: 5014057553-8gm9um6vnli3cle5rgigcdjpdrid14m9.apps.googleusercontent.com
-            clientSecret: tWZKVLxaD_ARWsriiiUFYoIk
+            clientId: 517447956930-ig2aufpe5329cdajidlh1sv6m9k6epec.apps.googleusercontent.com
+            clientSecret: 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
             redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
             scope:
               - email
@@ -31,8 +31,8 @@ spring:
               - email
               - public_profile
           github:
-            clientId: 748acff4c2f38d0541a3
-            clientSecret: 6e65da498aa704c843e3e57e30ea7eab2d58952a
+            clientId: 24f2fd3ffd314a4a4f8b
+            clientSecret: a1eed031e8d309e1cece0ec36f5aa0f56e7b1c97
             redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
             scope:
               - user:email
@@ -68,17 +68,6 @@ firebase:
     url: https://firebasestorage.googleapis.com/v0/b/${firebase.bucket.name}/o/%s?alt=media
   project:
     id: collectin-3959d
-api:
-  info:
-    title: CollectIn
-    description: This is online collection managment web-site. You can collect and save anything you want!
-    version: 1.0
-    termOfService: https://github.com/exe-11/collect_in.git
-    contact-name: CollectIn team
-    contact-email: https://github.com/exe-11/collect_in.git
-    contact-url: https://github.com/exe-11/collect_in.git
-    license-name: Apache 2.0
-    license-url: https://www.apache.org/licenses/LICENSE-2.0.html
 
 springdoc:
   swagger-ui:

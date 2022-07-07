@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Accessors(chain = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CommentCreationRequest implements Request {
+public class CommentRequest implements Request {
     @NotNull
     @JsonProperty("item_id")
     private Long itemId;

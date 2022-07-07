@@ -79,7 +79,7 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
                 }
         );
 
-        List<Comment> comments = commentRepository.findAllByItemId(id);
+        List<Comment> comments = commentRepository.findAllByItemIdOrderByCreationDateDesc(id);
         return APIResponse.success(new ItemResponse(
                 id,
                 item.getName(),

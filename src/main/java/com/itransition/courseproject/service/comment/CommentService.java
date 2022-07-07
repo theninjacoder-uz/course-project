@@ -1,6 +1,6 @@
 package com.itransition.courseproject.service.comment;
 
-import com.itransition.courseproject.dto.request.comment.CommentCreationRequest;
+import com.itransition.courseproject.dto.request.comment.CommentRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.comment.CommentResponse;
 import com.itransition.courseproject.exception.ResourceNotFoundException;
@@ -29,17 +29,17 @@ public class CommentService {
     private final ItemRepository itemRepository;
 
 
-    public CommentResponse create(CommentCreationRequest commentCreationRequest) {
+    public CommentResponse create(CommentRequest commentRequest) {
 
-        User user = userRepository.findById(commentCreationRequest.getUserId()).orElseThrow(() -> {
-            throw new UserNotFoundException(commentCreationRequest.getUserId());
+        User user = userRepository.findById(commentRequest.getUserId()).orElseThrow(() -> {
+            throw new UserNotFoundException(commentRequest.getUserId());
         });
-        Item item = itemRepository.findById(commentCreationRequest.getItemId()).orElseThrow(() -> {
-            throw new ResourceNotFoundException(ITEM_ENG,ITEM_RUS,commentCreationRequest.getItemId());
+        Item item = itemRepository.findById(commentRequest.getItemId()).orElseThrow(() -> {
+            throw new ResourceNotFoundException(ITEM_ENG,ITEM_RUS, commentRequest.getItemId());
         });
 
         return modelMapper.map(commentRepository
-                        .save(new Comment(commentCreationRequest.getText(), user, item)),
+                        .save(new Comment(commentRequest.getText(), user, item)),
                         CommentResponse.class);
     }
 
@@ -50,6 +50,6 @@ public class CommentService {
     }
 
     public APIResponse getCommentsByItemId(Long itemId) {
-        return APIResponse.success(List.of(modelMapper.map(commentRepository.findAllByItemId(itemId), CommentResponse[].class)));
+        return APIResponse.success(List.of(modelMapper.map(commentRepository.findAllByItemIdOrderByCreationDateDesc(itemId), CommentResponse[].class)));
     }
 }

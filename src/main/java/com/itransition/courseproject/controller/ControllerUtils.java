@@ -28,7 +28,9 @@ public abstract class ControllerUtils {
             COLLECTION_URI + ALL,
             BASE_URI + AUTH + ALL,
             "/swagger-ui/**",
-            "/api-docs/**"
+            "/api-docs/**",
+            "/app/**",
+            "/socket/**"
     };
     public static final String[] OPEN_FILES = {
             "/error",

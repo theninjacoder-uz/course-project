@@ -23,7 +23,7 @@ public abstract class CRUDController<
     }
 
     @PostMapping
-    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+    @PreAuthorize(value = "hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<APIResponse> create(@RequestBody @Valid C c) {
         return ResponseEntity.ok(service.create(c));
     }
@@ -35,13 +35,13 @@ public abstract class CRUDController<
 
 
     @PutMapping("/{id}")
-    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+    @PreAuthorize(value = "hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<APIResponse> update(@PathVariable ID id, @RequestBody @Valid C c){
         return ResponseEntity.ok(service.update(id, c));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+    @PreAuthorize(value = "hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<APIResponse> delete(@PathVariable ID id){
         return ResponseEntity.ok(service.delete(id));
     }

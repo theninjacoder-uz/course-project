@@ -6,6 +6,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import static com.itransition.courseproject.controller.ControllerUtils.BASE_URI;
 import static com.itransition.courseproject.controller.ControllerUtils.COMMENT_URI;
 
 
@@ -14,18 +15,20 @@ import static com.itransition.courseproject.controller.ControllerUtils.COMMENT_U
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry
-                .addEndpoint("/ws")
-                .setAllowedOriginPatterns("*");
-//                .withSockJS();
+                .setApplicationDestinationPrefixes("/app")
+                .enableSimpleBroker("/topic/");
     }
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
-                .setApplicationDestinationPrefixes(COMMENT_URI)
-                .enableSimpleBroker("/topic");
+                .addEndpoint("/socket");
+//                .setAllowedOriginPatterns("*");
+//                .withSockJS();
     }
+
+
 }
 
