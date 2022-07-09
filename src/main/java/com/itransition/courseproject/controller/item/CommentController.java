@@ -31,8 +31,8 @@ public class CommentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    @MessageMapping("/comment") // api/comment
+//    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @MessageMapping("/comment") // app/comment
     public ResponseEntity<Void> sendComment(@Payload CommentRequest request) {
         simpMessagingTemplate.convertAndSend("/topic/comment/" + request.getItemId(), commentService.create(request));
         return new ResponseEntity<>(HttpStatus.OK);

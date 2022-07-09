@@ -14,6 +14,7 @@ public interface FieldValueRepository extends JpaRepository<FieldValue, Long> {
     @Query("select f from FieldValue f where f.item.id = ?1")
     List<FieldValue> findAllByItemId(Long item_id);
 
+
     @Query("select f from FieldValue f inner join f.item.tags tags where tags.id = ?1")
     List<FieldValue> findAllByItem_Tags_Id(Long item_tags_id);
 

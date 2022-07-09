@@ -22,6 +22,7 @@ public abstract class ControllerUtils {
             USER_URI,
             COMMENT_URI,
             BASE_URI + HOME,
+            SEARCH_URI+ALL,
             TAG_URI + ALL,
             ITEM_URI + ALL,
             FIELD_URI + ALL,

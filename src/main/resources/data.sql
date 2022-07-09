@@ -1,24 +1,27 @@
 CREATE MATERIALIZED VIEW simple_search AS
-SELECT i.id                                AS id,
-       i.name                              AS name,
-       'ITEM'                              AS table_type,
-       setweight(to_tsvector(i.name), 'A') AS doc
+SELECT i.id ::bigint         AS id,
+        i.name ::text         AS name,
+        'ITEM' ::varchar      AS table_type,
+        i.creation_date::timestamp AS c_date,
+        to_tsvector(i.name)   AS doc
 from item i
 UNION ALL
-SELECT c.id                                                        AS id,
-       c.name                                                      AS name,
-       'COLLECTION'                                                AS table_type,
-       setweight(to_tsvector(c.name), 'A') || setweight(to_tsvector(c.description), 'B')  AS doc
+SELECT c.id ::bigint                                                                     AS id,
+        c.name ::text                                                                     AS name,
+        'COLLECTION' ::varchar                                                            AS table_type,
+        c.creation_date::timestamp                                                             AS c_date,
+            setweight(to_tsvector(c.name), 'A') || setweight(to_tsvector(c.description), 'B') AS doc
 from collection c
 UNION ALL
-SELECT com.item_id                           AS id,
-       com.text                              AS name,
-       'COMMENT'                             AS table_type,
-       setweight(to_tsvector(com.text), 'B') AS doc
+SELECT com.item_id ::bigint    AS id,
+        com.text ::text         AS name,
+        'COMMENT' ::varchar     AS table_type,
+        com.creation_date::timestamp AS c_date,
+        to_tsvector(com.text)   AS doc
 from comment com;
 
 CREATE INDEX idx_fts ON simple_search USING gin (doc);
-CREATE INDEX idx_unq ON simple_search (id);
+CREATE UNIQUE INDEX idx_unq ON simple_search (id, table_type, c_date);
 
 
 CREATE OR REPLACE FUNCTION refresh_view()
@@ -32,24 +35,30 @@ $$ LANGUAGE plpgsql;
 
 
 CREATE TRIGGER item_trigger_update_view
-    AFTER INSERT OR UPDATE OR DELETE ON item
-    FOR EACH ROW EXECUTE PROCEDURE refresh_view();
+    AFTER INSERT OR UPDATE OR DELETE
+                    ON item
+                        FOR EACH ROW
+                        EXECUTE PROCEDURE refresh_view();
 
 CREATE TRIGGER collection_trigger_update_view
-    AFTER INSERT OR UPDATE OR DELETE ON collection
-    FOR EACH ROW EXECUTE PROCEDURE refresh_view();
+    AFTER INSERT OR UPDATE OR DELETE
+                    ON collection
+                        FOR EACH ROW
+                        EXECUTE PROCEDURE refresh_view();
 
 CREATE TRIGGER comment_trigger_update_view
-    AFTER INSERT OR UPDATE OR DELETE ON comment
-    FOR EACH ROW EXECUTE PROCEDURE refresh_view();
+    AFTER INSERT OR UPDATE OR DELETE
+                    ON comment
+                        FOR EACH ROW
+                        EXECUTE PROCEDURE refresh_view();
 
 
 CREATE OR REPLACE FUNCTION full_text_search(search_text TEXT)
     RETURNS TABLE
             (
-                id   bigint,
-                name character varying,
-                table_type text
+                id         bigint,
+                name       text,
+                table_type varchar
             )
     LANGUAGE plpgsql
 AS
@@ -60,4 +69,5 @@ SELECT s.id, s.name, s.table_type FROM simple_search s WHERE s.doc @@ plainto_ts
 END;
 $$
 
-select * from full_text_search('just');
+select *
+from full_text_search('book:*');

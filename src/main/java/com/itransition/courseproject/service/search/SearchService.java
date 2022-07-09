@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class SearchService {
     private EntityManager entityManager;
 
     public APIResponse search(String text) {
+        text = text.toLowerCase() + ":*";
         Query query = entityManager.createNativeQuery("select * from full_text_search(:text)");
         query.setParameter("text", text);
         return APIResponse.success(query.getResultList());

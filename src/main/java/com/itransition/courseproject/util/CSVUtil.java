@@ -22,29 +22,30 @@ public final class CSVUtil {
 
     public static List<String[]> collectionItemFieldNameLists(List<Field> fieldList) {
         int length = fieldList.size();
-        String[] head = new String[length + 3];
+        String[] head = new String[length + 1];
         head[0] = "Id";
-        head[1] = "Name";
-        head[2] = "Tags";
         for (int i = 0; i < length; i++) {
-            head[i + 3] = fieldList.get(i).getName();
+            head[i + 1] = fieldList.get(i).getName();
         }
         return Collections.singletonList(head);
     }
 
     public static List<String[]> valuesCollectionItemFields(List<FieldValue> fieldValueList, int fieldCount) {
         final List<String[]> fieldData = new ArrayList<>();
-        String[] itemContents = new String[fieldCount + 3];
+        String[] itemContents = new String[fieldCount + 1]; // 4 + 4 fieldCount = 5
         int columnCount = 0, i = 0;
         while (i < fieldValueList.size()) {
             itemContents[columnCount++] = String.valueOf(fieldValueList.get(i).getItem().getId());
-            itemContents[columnCount++] = fieldValueList.get(i).getItem().getName();
-            itemContents[columnCount++] = "[" + fieldValueList.get(i).getItem().getTags() + "]";
             for (int j = 0; j < fieldCount; j++) {
-                itemContents[columnCount++] = fieldValueList.get(i++).getValue();
+                if (j == 1) {
+                    itemContents[columnCount++] = "[" + fieldValueList.get(i).getItem().getTags() + "]";
+                } else {
+                    itemContents[columnCount++] = fieldValueList.get(i++).getValue();
+                }
             }
             fieldData.add(itemContents);
             columnCount = 0;
+            itemContents = new String[fieldCount + 1];
         }
         return fieldData;
     }

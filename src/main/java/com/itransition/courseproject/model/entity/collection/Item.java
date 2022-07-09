@@ -32,7 +32,7 @@ public class Item extends BaseEntity {
     public Item(String name, Collection collection, List<Tag> tagList) {
         this.name = name;
         this.collection = collection;
-        this.tags = tags;
+        this.tags = tagList;
     }
 
     @JsonIgnore
