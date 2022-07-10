@@ -1,7 +1,6 @@
 package com.itransition.courseproject.service.collection;
 
 import com.itransition.courseproject.dto.request.collection.ItemRequest;
-import com.itransition.courseproject.dto.request.collection.ItemUpdateRequest;
 import com.itransition.courseproject.dto.request.field.FieldValueRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.collection.FieldResponse;
@@ -11,13 +10,15 @@ import com.itransition.courseproject.dto.response.field.FieldValueResponse;
 import com.itransition.courseproject.dto.response.item.ItemResponse;
 import com.itransition.courseproject.dto.response.item.ItemResponseByTag;
 import com.itransition.courseproject.dto.response.tag.TagResponse;
-import com.itransition.courseproject.exception.ResourceNotFoundException;
+import com.itransition.courseproject.exception.auth.AuthorizationRequiredException;
+import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
 import com.itransition.courseproject.model.entity.collection.Collection;
 import com.itransition.courseproject.model.entity.collection.Field;
 import com.itransition.courseproject.model.entity.collection.FieldValue;
 import com.itransition.courseproject.model.entity.collection.Item;
 import com.itransition.courseproject.model.entity.comment.Comment;
 import com.itransition.courseproject.model.entity.tag.Tag;
+import com.itransition.courseproject.model.enums.Status;
 import com.itransition.courseproject.repository.CommentRepository;
 import com.itransition.courseproject.repository.collection.CollectionRepository;
 import com.itransition.courseproject.repository.collection.FieldRepository;
@@ -25,10 +26,12 @@ import com.itransition.courseproject.repository.collection.FieldValueRepository;
 import com.itransition.courseproject.repository.collection.ItemRepository;
 import com.itransition.courseproject.repository.tag.TagRepository;
 import com.itransition.courseproject.service.CRUDService;
+import com.itransition.courseproject.util.AuthenticationUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.Map;
@@ -50,14 +53,14 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
 
     @Override
     public APIResponse create(ItemRequest itemRequest) {
-        List<Long> tagIdList = itemRequest.getTagIdList();
-        List<Tag> tagList = tagRepository.findAllById(tagIdList);
-        Collection collection = collectionRepository
+        final List<Long> tagIdList = itemRequest.getTagIdList();
+        final List<Tag> tagList = tagRepository.findAllById(tagIdList);
+        final Collection collection = collectionRepository
                 .findById(itemRequest.getCollectionId())
                 .orElseThrow(() -> {
-                    throw new ResourceNotFoundException(COLLECTION_ENG,COLLECTION_RUS, String.valueOf(itemRequest.getCollectionId()));
+                    throw new ResourceNotFoundException(COLLECTION_ENG, COLLECTION_RUS, String.valueOf(itemRequest.getCollectionId()));
                 });
-        Item item = itemRepository.save(new Item(itemRequest.getName(), collection, tagList));
+        final Item item = itemRepository.save(new Item(itemRequest.getName(), collection, tagList));
         //// TODO: 06.07.2022 return value changed
         fieldValueRepository.saveAll(getFieldValues(item, itemRequest.getFieldValues()));
         return APIResponse.success(true);
@@ -66,16 +69,16 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
     @Override
     public APIResponse get(Long id) {
         return APIResponse.success(
-                itemRepository.findById(id).orElseThrow(()->{
-                    throw new ResourceNotFoundException(ITEM_ENG,ITEM_RUS,String.valueOf(id));
+                itemRepository.findById(id).orElseThrow(() -> {
+                    throw new ResourceNotFoundException(ITEM_ENG, ITEM_RUS, String.valueOf(id));
                 })
         );
     }
 
 
     public APIResponse getItemResponse(Long id, Long userId) {
-        Item item = itemRepository.findById(id).orElseThrow(() -> {
-                    throw new ResourceNotFoundException(ITEM_ENG,ITEM_RUS,String.valueOf(id));
+        final Item item = itemRepository.findById(id).orElseThrow(() -> {
+                    throw new ResourceNotFoundException(ITEM_ENG, ITEM_RUS, String.valueOf(id));
                 }
         );
 
@@ -91,14 +94,20 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
         );
     }
 
-    public APIResponse modify(Long id, ItemUpdateRequest itemRequest) {
-        Item item = itemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ITEM_ENG, ITEM_RUS, String.valueOf(id)));
-        List<Tag> tags = tagRepository.findAllById(itemRequest.getTags());
-        List<Long> filedIds = itemRequest.getFieldValues().stream().map(f -> {
-            return f.getFieldId();
-        }).collect(Collectors.toList());
-        List<Field> fields = fieldRepository.findAllById(filedIds);
-        List<FieldValue> fieldValues = itemRequest.getFieldValues().stream().map(fieldValue -> {
+    @Override
+    public APIResponse update(Long id, ItemRequest itemRequest) {
+        if (authorizeItemOwner(id)) {
+            throw new AuthorizationRequiredException();
+        }
+        final Item item = itemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ITEM_ENG, ITEM_RUS, String.valueOf(id)));
+        final List<Tag> tags = tagRepository.findAllById(itemRequest.getTagIdList());
+        final List<Long> filedIds = itemRequest
+                .getFieldValues()
+                .stream()
+                .map(FieldValueRequest::getFieldId)
+                .collect(Collectors.toList());
+        final List<Field> fields = fieldRepository.findAllById(filedIds);
+        final List<FieldValue> fieldValues = itemRequest.getFieldValues().stream().map(fieldValue -> {
             return new FieldValue(fieldValue.getValue(), item,
                     fields.stream().filter(f -> f.getId() == fieldValue.getFieldId()).findFirst().orElseThrow(
                             () -> new ResourceNotFoundException(FIELD_ENG, FIELD_RUS, String.valueOf(fieldValue.getFieldId())))
@@ -110,19 +119,20 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
         itemRepository.save(item);
         fieldValueRepository.saveAll(fieldValues);
 
-        return getItemResponse(item.getId(),item.getCollection().getUser().getId());
+        return getItemResponse(item.getId(), item.getCollection().getUser().getId());
     }
 
     @Override
-    public APIResponse delete(Long aLong) {
-        return null;
+    public APIResponse delete(Long id) {
+        if (authorizeItemOwner(id)) {
+            throw new AuthorizationRequiredException();
+        }
+        commentRepository.deleteAllByItem_Id(id);
+        fieldValueRepository.deleteAllByItem_Id(id);
+        itemRepository.deleteById(id);
+        return APIResponse.success(HttpStatus.OK);
     }
 
-
-    @Override
-    public APIResponse update(Long aLong, ItemRequest u) {
-        return null;
-    }
 
     @Override
     public APIResponse getAll() {
@@ -149,21 +159,21 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
                         item,
                         fieldRepository
                                 .findById(fvr.getFieldId())
-                                .orElseThrow(() -> new ResourceNotFoundException(FIELD_ENG,FIELD_RUS, String.valueOf(fvr.getFieldId())))))
+                                .orElseThrow(() -> new ResourceNotFoundException(FIELD_ENG, FIELD_RUS, String.valueOf(fvr.getFieldId())))))
                 .collect(Collectors.toList());
     }
 
     public APIResponse updateItemLike(Long userId, Long itemId, boolean isLiked) {
-        if(isLiked){
-            itemRepository.insertItemLike(itemId,userId);
-        }else {
-            itemRepository.deleteItemLike(itemId,userId);
+        if (isLiked) {
+            itemRepository.insertItemLike(itemId, userId);
+        } else {
+            itemRepository.deleteItemLike(itemId, userId);
         }
         return APIResponse.success(true);
     }
 
-    private FieldValueListResponse getFieldValueListResponse(Long collectionId){
-        FieldValueListResponse fieldList = new FieldValueListResponse();
+    private FieldValueListResponse getFieldValueListResponse(Long collectionId) {
+        final FieldValueListResponse fieldList = new FieldValueListResponse();
 
         fieldList.setTypes(fieldRepository.findAllByCollection_Id(collectionId)
                 .stream().map(elm -> modelMapper.map(elm, FieldResponse.class)).collect(Collectors.toList()));
@@ -174,5 +184,13 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
                 .collect(Collectors.groupingBy(FieldValueResponse::getItemId)));
 
         return fieldList;
+    }
+
+    private boolean authorizeItemOwner(long itemId) {
+        if(AuthenticationUtil.isAdmin()) {
+            return false;
+        }
+        final String email = String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        return !itemRepository.existsByIdAndCollection_UserEmailAndCollection_UserStatus(itemId, email, Status.ACTIVE);
     }
 }

@@ -3,7 +3,7 @@ package com.itransition.courseproject.service.collection;
 import com.itransition.courseproject.dto.request.collection.TopicRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.collection.TopicResponse;
-import com.itransition.courseproject.exception.ResourceNotFoundException;
+import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
 import com.itransition.courseproject.model.entity.collection.Topic;
 import com.itransition.courseproject.repository.collection.TopicRepository;
 import com.itransition.courseproject.service.CRUDService;

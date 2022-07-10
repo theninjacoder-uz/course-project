@@ -1,7 +1,7 @@
 package com.itransition.courseproject.security.oauth2;
 
 import com.itransition.courseproject.config.security.AppProperties;
-import com.itransition.courseproject.exception.oauth2.BadRequestException;
+import com.itransition.courseproject.exception.auth.BadRequestException;
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.security.jwt.JWTokenProvider;
 import com.itransition.courseproject.util.CookieUtils;

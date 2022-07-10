@@ -1,4 +1,4 @@
-package com.itransition.courseproject.exception.oauth2;
+package com.itransition.courseproject.exception.auth;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -5,29 +5,30 @@ import com.itransition.courseproject.dto.request.field.FieldRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.collection.CollectionResponse;
 import com.itransition.courseproject.dto.response.collection.FieldResponse;
-import com.itransition.courseproject.exception.FileProcessingException;
-import com.itransition.courseproject.exception.ResourceNotFoundException;
+import com.itransition.courseproject.exception.auth.AuthorizationRequiredException;
+import com.itransition.courseproject.exception.resource.FileProcessingException;
+import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
 import com.itransition.courseproject.exception.user.UserNotFoundException;
 import com.itransition.courseproject.model.entity.collection.Collection;
 import com.itransition.courseproject.model.entity.collection.Field;
 import com.itransition.courseproject.model.entity.collection.FieldValue;
 import com.itransition.courseproject.model.entity.collection.Topic;
 import com.itransition.courseproject.model.entity.user.User;
+import com.itransition.courseproject.model.enums.Status;
 import com.itransition.courseproject.repository.UserRepository;
 import com.itransition.courseproject.repository.collection.*;
 import com.itransition.courseproject.service.CRUDService;
+import com.itransition.courseproject.util.AuthenticationUtil;
 import com.itransition.courseproject.util.CSVUtil;
 import com.opencsv.CSVWriter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.itransition.courseproject.util.constant.ResourceConstants.*;
@@ -87,6 +88,9 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
 
     @Override
     public APIResponse update(Long id, CollectionRequest collectionRequest) {
+        if (authorizeCollectionOwner(id)) {
+            throw new AuthorizationRequiredException();
+        }
         User user = userRepository.findById(collectionRequest.getUserId()).orElseThrow(() -> {
             throw new UserNotFoundException(String.valueOf(collectionRequest.getUserId()));
         });
@@ -108,6 +112,9 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
 
     @Override
     public APIResponse delete(Long id) {
+        if (authorizeCollectionOwner(id)) {
+            throw new AuthorizationRequiredException();
+        }
         collectionRepository.deleteById(id);
         fieldRepository.deleteAllByCollection_Id(id);
         itemRepository.deleteAllByCollection_Id(id);
@@ -155,7 +162,7 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
         Collection collection = collectionRepository.findById(collectionId).orElseThrow(() -> {
             throw new ResourceNotFoundException(COLLECTION_ENG, COLLECTION_RUS, String.valueOf(collectionId));
         });
-        try (CSVWriter csvWriter = new CSVWriter(response.getWriter())){
+        try (CSVWriter csvWriter = new CSVWriter(response.getWriter())) {
             List<Field> fieldList = fieldRepository.findAllByCollection_IdOrderByIdAsc(collectionId);
             List<FieldValue> fieldValueList = fieldValueRepository.findAllByItem_CollectionIdOrderByItem_IdAscField_IdAsc(collectionId);
             response.setContentType("text/csv");
@@ -168,6 +175,14 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
             throw new FileProcessingException("csv file creation error", "ошибка создания файла csv");
         }
 
+    }
+
+    private boolean authorizeCollectionOwner(Long collectionId) {
+        if (AuthenticationUtil.isAdmin()) {
+            return false;
+        }
+        final String email = String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        return !collectionRepository.existsByIdAndUserEmailAndUserStatus(collectionId, email, Status.ACTIVE);
     }
 
 }

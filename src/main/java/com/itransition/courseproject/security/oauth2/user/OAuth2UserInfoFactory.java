@@ -1,6 +1,6 @@
 package com.itransition.courseproject.security.oauth2.user;
 
-import com.itransition.courseproject.exception.oauth2.OAuth2AuthenticationProcessingException;
+import com.itransition.courseproject.exception.auth.OAuth2AuthenticationProcessingException;
 import com.itransition.courseproject.model.enums.AuthProvider;
 
 import java.util.Map;

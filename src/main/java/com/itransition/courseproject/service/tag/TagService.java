@@ -3,7 +3,7 @@ package com.itransition.courseproject.service.tag;
 import com.itransition.courseproject.dto.request.tag.TagRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.tag.TagResponse;
-import com.itransition.courseproject.exception.ResourceNotFoundException;
+import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
 import com.itransition.courseproject.model.entity.tag.Tag;
 import com.itransition.courseproject.repository.tag.TagRepository;
 import com.itransition.courseproject.service.CRUDService;

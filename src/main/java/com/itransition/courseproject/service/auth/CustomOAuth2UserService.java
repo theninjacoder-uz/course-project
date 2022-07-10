@@ -1,6 +1,6 @@
 package com.itransition.courseproject.service.auth;
 
-import com.itransition.courseproject.exception.oauth2.OAuth2AuthenticationProcessingException;
+import com.itransition.courseproject.exception.auth.OAuth2AuthenticationProcessingException;
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.AuthProvider;
 import com.itransition.courseproject.model.enums.Status;

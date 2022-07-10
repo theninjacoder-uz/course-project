@@ -11,6 +11,7 @@ import static com.itransition.courseproject.controller.ControllerUtils.ITEM_URI;
 
 
 @RestController
+@CrossOrigin(origins = "*", methods = {RequestMethod.DELETE, RequestMethod.GET,RequestMethod.PUT,RequestMethod.POST})
 @RequestMapping(ITEM_URI)
 public class ItemController extends CRUDController<ItemService, Long, ItemRequest> {
 

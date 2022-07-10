@@ -3,7 +3,7 @@ package com.itransition.courseproject.service.comment;
 import com.itransition.courseproject.dto.request.comment.CommentRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.comment.CommentResponse;
-import com.itransition.courseproject.exception.ResourceNotFoundException;
+import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
 import com.itransition.courseproject.exception.user.UserNotFoundException;
 import com.itransition.courseproject.model.entity.collection.Item;
 import com.itransition.courseproject.model.entity.comment.Comment;

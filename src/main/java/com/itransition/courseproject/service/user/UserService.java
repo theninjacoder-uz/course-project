@@ -7,7 +7,7 @@ import com.itransition.courseproject.dto.request.user.UserStatusRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.auth.JwtTokenResponse;
 import com.itransition.courseproject.dto.response.user.UserResponse;
-import com.itransition.courseproject.exception.AuthorizationRequiredException;
+import com.itransition.courseproject.exception.auth.AuthorizationRequiredException;
 import com.itransition.courseproject.exception.user.UserNotFoundException;
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.Language;

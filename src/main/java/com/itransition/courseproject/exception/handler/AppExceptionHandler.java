@@ -1,8 +1,8 @@
 package com.itransition.courseproject.exception.handler;
 
 import com.itransition.courseproject.dto.response.APIResponse;
-import com.itransition.courseproject.exception.ResourceNotFoundException;
-import com.itransition.courseproject.exception.jwt.JwtValidationException;
+import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
+import com.itransition.courseproject.exception.auth.JwtValidationException;
 import com.itransition.courseproject.exception.user.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

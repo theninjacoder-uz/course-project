@@ -1,6 +1,8 @@
-package com.itransition.courseproject.exception;
+package com.itransition.courseproject.exception.resource;
 
-public class ResourceNotFoundException extends ApiException{
+import com.itransition.courseproject.exception.ApiException;
+
+public class ResourceNotFoundException extends ApiException {
 
     private static final String DEFAULT_MESSAGE_ENG = " not found with ";
     private static final String DEFAULT_MESSAGE_RUS = " не найдено с ";

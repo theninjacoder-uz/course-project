@@ -2,7 +2,9 @@ package com.itransition.courseproject.repository;
 
 import com.itransition.courseproject.model.entity.comment.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,4 +16,9 @@ public interface CommentRepository extends JpaRepository<Comment,Long> {
 
     @Query(value = "select * from comment c where c.doc @@ plainto_tsquery(:text)", nativeQuery = true)
     List<Comment> fullTextSearch(String text);
+
+    @Transactional
+    @Modifying
+    @Query("delete from Comment c where c.item.id = ?1")
+    int deleteAllByItem_Id(Long item_id);
 }

@@ -4,7 +4,7 @@ import com.itransition.courseproject.dto.request.auth.LoginRequest;
 import com.itransition.courseproject.dto.request.auth.RegisterRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.auth.JwtTokenResponse;
-import com.itransition.courseproject.exception.jwt.JwtValidationException;
+import com.itransition.courseproject.exception.auth.JwtValidationException;
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.Status;
 import com.itransition.courseproject.repository.UserRepository;

@@ -26,7 +26,7 @@ public class Item extends BaseEntity {
     @ManyToOne
     private Collection collection;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     private List<Tag> tags;
 
     public Item(String name, Collection collection, List<Tag> tagList) {

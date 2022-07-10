@@ -1,8 +1,9 @@
 package com.itransition.courseproject.security.jwt;
 
-import com.itransition.courseproject.exception.jwt.JwtValidationException;
+import com.itransition.courseproject.exception.auth.JwtValidationException;
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.Role;
+import com.itransition.courseproject.util.AuthenticationUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -63,7 +64,7 @@ public class JWTokenProvider {
         }
     }
 
-    private Set<GrantedAuthority> getAuthorities(int roleValue) {
+    private  Set<GrantedAuthority> getAuthorities(int roleValue) {
         Set<GrantedAuthority> authorities = new HashSet<>();
         for (Role role : Role.values()) {
             if ((roleValue & role.getFlag()) > 0)
@@ -71,4 +72,5 @@ public class JWTokenProvider {
         }
         return authorities;
     }
+
 }

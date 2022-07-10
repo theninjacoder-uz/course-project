@@ -42,13 +42,13 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors()
-                .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .configurationSource(corsConfigurationSource())
                 .and()
                 .csrf()
                 .disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .formLogin()
                 .disable()
                 .httpBasic()
@@ -62,8 +62,8 @@ public class WebSecurityConfig {
                 .antMatchers("/api/v1/auth/**", "/oauth2/**")
                 .permitAll()
                 .anyRequest()
-//                .authenticated()
-                .permitAll()
+                .authenticated()
+//                .permitAll()
                 .and()
                 .oauth2Login()
                 .authorizationEndpoint()
@@ -84,15 +84,15 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+    CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:8080"));
-        configuration.setAllowedHeaders(Arrays.asList("Access-Control-Allow-Headers",
-                "Access-Control-Allow-Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers",
-                "Origin", "Cache-Control", "Content-Type", "Authorization", "Ack", "ack", "/**"));
-        configuration.setAllowedMethods(Arrays.asList("DELETE", "GET", "POST", "PATCH", "PUT"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(Arrays.asList("X-Auth-Token", "Authorization", "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials"));
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

@@ -2,7 +2,7 @@ package com.itransition.courseproject.service.collection;
 
 import com.itransition.courseproject.dto.request.field.FieldRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
-import com.itransition.courseproject.exception.ResourceNotFoundException;
+import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
 import com.itransition.courseproject.model.entity.collection.Collection;
 import com.itransition.courseproject.model.entity.collection.Field;
 import com.itransition.courseproject.repository.collection.CollectionRepository;
