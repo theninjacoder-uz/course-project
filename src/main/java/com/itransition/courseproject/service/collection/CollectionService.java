@@ -79,7 +79,7 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
         return APIResponse.success(response);
     }
 
-//    public APIResponse getList(int page, int size, String order, String[] categories) {
+//    public APIResponse  (int page, int size, String order, String[] categories) {
 //        categories = (categories == null || categories.length == 0) ? new String[]{DEFAULT_SORT_FIELD} : categories;
 //        Page<Collection> list = collectionRepository
 //                .findAll(PageRequest.of(page, size, Sort.Direction.valueOf(order), categories));
@@ -127,26 +127,26 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
     }
 
     public APIResponse getLatestCollections() {
-        List<Long> collectionIds = fieldRepository.findTopCollectionIds();
+        final List<Long> collectionIds = fieldRepository.findTopCollectionIds();
         return APIResponse.success(getCollectionResponseList(collectionRepository.findAllById(collectionIds)));
     }
 
     public APIResponse getUserCollections(Long userId) {
-        List<Collection> collectionList = collectionRepository.findAllByUser_Id(userId);
+        final List<Collection> collectionList = AuthenticationUtil.isAdmin() ?
+                collectionRepository.findAll() : collectionRepository.findAllByUser_Id(userId);
         return APIResponse.success(getCollectionResponseList(collectionList));
     }
 
     private CollectionResponse getCollectionResponse(Collection collection, FieldRequest[] fieldRequests) {
-        CollectionResponse response = modelMapper.map(collection, CollectionResponse.class);
+        final CollectionResponse response = modelMapper.map(collection, CollectionResponse.class);
         response.setFields(saveCollectionFields(collection, fieldRequests));
         return response;
     }
 
     private FieldResponse[] saveCollectionFields(Collection collection, FieldRequest[] fieldRequests) {
-        List<Field> fields = List.of(modelMapper.map(fieldRequests, Field[].class));
+        final List<Field> fields = List.of(modelMapper.map(fieldRequests, Field[].class));
         fields.forEach(field -> field.setCollection(collection));
-        fields = fieldRepository.saveAll(fields);
-        return modelMapper.map(fields, FieldResponse[].class);
+        return modelMapper.map(fieldRepository.saveAll(fields), FieldResponse[].class);
     }
 
     private List<CollectionResponse> getCollectionResponseList(List<Collection> collectionList) {
@@ -159,7 +159,7 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
     }
 
     public void loadCSVFile(HttpServletResponse response, long collectionId, String lang) {
-        Collection collection = collectionRepository.findById(collectionId).orElseThrow(() -> {
+        final Collection collection = collectionRepository.findById(collectionId).orElseThrow(() -> {
             throw new ResourceNotFoundException(COLLECTION_ENG, COLLECTION_RUS, String.valueOf(collectionId));
         });
         try (CSVWriter csvWriter = new CSVWriter(response.getWriter())) {
