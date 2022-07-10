@@ -12,6 +12,9 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
+    @Transactional
+    @Modifying
+    @Query("delete from Item i where i.collection.id = ?1")
     int deleteAllByCollection_Id(Long id);
 
     @Query("select (count(i) > 0) from Item i inner join i.likedUsers likedUsers where i.id = ?1 and likedUsers.id = ?2")
@@ -36,4 +39,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("select (count(i) > 0) from Item i " +
             "where i.id = ?1 and i.collection.user.email = ?2 and i.collection.user.status = ?3")
     boolean existsByIdAndCollection_UserEmailAndCollection_UserStatus(Long itemId, String email, Status status);
+
+    @Query("select i from Item i where i.collection.id = ?1")
+    List<Item> findAllByCollectionId(Long collectionId);
 }

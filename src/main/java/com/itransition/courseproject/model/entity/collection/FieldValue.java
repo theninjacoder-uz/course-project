@@ -10,6 +10,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -20,10 +21,22 @@ public class FieldValue extends BaseEntity {
 
     private String value;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Item item;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     private Field field;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FieldValue that = (FieldValue) o;
+        return Objects.equals(value, that.value) && Objects.equals(super.getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.getId(), value);
+    }
 }

@@ -15,6 +15,7 @@ import com.itransition.courseproject.model.entity.collection.FieldValue;
 import com.itransition.courseproject.model.entity.collection.Topic;
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.Status;
+import com.itransition.courseproject.repository.CommentRepository;
 import com.itransition.courseproject.repository.UserRepository;
 import com.itransition.courseproject.repository.collection.*;
 import com.itransition.courseproject.service.CRUDService;
@@ -42,6 +43,7 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
     private final TopicRepository topicRepository;
     private final FieldRepository fieldRepository;
     private final FieldValueRepository fieldValueRepository;
+    private final CommentRepository commentRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
@@ -115,9 +117,11 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
         if (authorizeCollectionOwner(id)) {
             throw new AuthorizationRequiredException();
         }
-        collectionRepository.deleteById(id);
+        fieldValueRepository.deleteAllByFieldIn(fieldRepository.findAllByCollection_Id(id));
         fieldRepository.deleteAllByCollection_Id(id);
+        commentRepository.deleteAllByItemIn(itemRepository.findAllByCollectionId(id));
         itemRepository.deleteAllByCollection_Id(id);
+        collectionRepository.deleteById(id);
         return APIResponse.success(true);
     }
 

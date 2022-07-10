@@ -11,6 +11,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Setter
@@ -26,7 +27,11 @@ public class Item extends BaseEntity {
     @ManyToOne
     private Collection collection;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @JoinTable(name="item_tags",
+            joinColumns=@JoinColumn(name="item_id"),
+            inverseJoinColumns=@JoinColumn(name="tags_id")
+    )
     private List<Tag> tags;
 
     public Item(String name, Collection collection, List<Tag> tagList) {
@@ -36,11 +41,28 @@ public class Item extends BaseEntity {
     }
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.REMOVE)
+    @JoinTable(name="item_liked_users",
+            joinColumns=@JoinColumn(name="item_id"),
+            inverseJoinColumns=@JoinColumn(name="liked_users_id")
+    )
     private Set<User> likedUsers = new HashSet<>();
 
     public long getLikes() {
         return likedUsers.size();
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return  Objects.equals(name, item.name) && Objects.equals(super.getId(), item.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, super.getId());
+    }
 }
