@@ -1,23 +1,22 @@
-package com.itransition.courseproject.repository.collection;
+package com.itransition.courseproject.repository.item;
 
-import com.itransition.courseproject.model.entity.collection.Item;
+import com.itransition.courseproject.model.entity.item.Item;
 import com.itransition.courseproject.model.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    @Transactional
-    @Modifying
-    @Query("delete from Item i where i.collection.id = ?1")
-    int deleteAllByCollection_Id(Long id);
 
-    @Query("select (count(i) > 0) from Item i inner join i.likedUsers likedUsers where i.id = ?1 and likedUsers.id = ?2")
+    void deleteAllByCollectionId(Long id);
+
     Boolean existsByIdAndLikedUsers_Id(Long itemId, Long userId);
 
     @Transactional
@@ -36,10 +35,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     )
     void deleteItemLike(@Param("itemId") long itemId, @Param("userId") long userId);
 
-    @Query("select (count(i) > 0) from Item i " +
-            "where i.id = ?1 and i.collection.user.email = ?2 and i.collection.user.status = ?3")
     boolean existsByIdAndCollection_UserEmailAndCollection_UserStatus(Long itemId, String email, Status status);
 
-    @Query("select i from Item i where i.collection.id = ?1")
     List<Item> findAllByCollectionId(Long collectionId);
 }

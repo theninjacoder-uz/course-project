@@ -2,6 +2,7 @@ package com.itransition.courseproject.dto.response.collection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.itransition.courseproject.dto.response.Response;
+import com.itransition.courseproject.dto.response.field.FieldResponse;
 import com.itransition.courseproject.dto.response.user.CollectionUserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.itransition.courseproject.dto.response.collection;
+package com.itransition.courseproject.dto.response.field;
 
 import com.itransition.courseproject.dto.response.Response;
 import lombok.AllArgsConstructor;

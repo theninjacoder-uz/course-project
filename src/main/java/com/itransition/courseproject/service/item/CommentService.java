@@ -1,16 +1,16 @@
-package com.itransition.courseproject.service.comment;
+package com.itransition.courseproject.service.item;
 
 import com.itransition.courseproject.dto.request.comment.CommentRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.comment.CommentResponse;
 import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
 import com.itransition.courseproject.exception.user.UserNotFoundException;
-import com.itransition.courseproject.model.entity.collection.Item;
-import com.itransition.courseproject.model.entity.comment.Comment;
+import com.itransition.courseproject.model.entity.item.Item;
+import com.itransition.courseproject.model.entity.item.Comment;
 import com.itransition.courseproject.model.entity.user.User;
-import com.itransition.courseproject.repository.CommentRepository;
-import com.itransition.courseproject.repository.UserRepository;
-import com.itransition.courseproject.repository.collection.ItemRepository;
+import com.itransition.courseproject.repository.item.CommentRepository;
+import com.itransition.courseproject.repository.user.UserRepository;
+import com.itransition.courseproject.repository.item.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

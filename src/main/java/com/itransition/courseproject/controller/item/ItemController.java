@@ -1,9 +1,9 @@
 package com.itransition.courseproject.controller.item;
 
 import com.itransition.courseproject.controller.CRUDController;
-import com.itransition.courseproject.dto.request.collection.ItemRequest;
+import com.itransition.courseproject.dto.request.item.ItemRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
-import com.itransition.courseproject.service.collection.ItemService;
+import com.itransition.courseproject.service.item.ItemService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

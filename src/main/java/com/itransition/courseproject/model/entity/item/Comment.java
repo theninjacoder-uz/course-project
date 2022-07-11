@@ -1,6 +1,5 @@
-package com.itransition.courseproject.model.entity.comment;
+package com.itransition.courseproject.model.entity.item;
 
-import com.itransition.courseproject.model.entity.collection.Item;
 import com.itransition.courseproject.model.entity.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,10 +25,10 @@ public class Comment {
     @Column(nullable = false)
     private Date creationDate = new Date();
 
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne
     private User user;
 
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne
     private Item item;
 
     public Comment(String text, User user, Item item) {

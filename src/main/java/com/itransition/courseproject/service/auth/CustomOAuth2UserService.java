@@ -4,7 +4,7 @@ import com.itransition.courseproject.exception.auth.OAuth2AuthenticationProcessi
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.AuthProvider;
 import com.itransition.courseproject.model.enums.Status;
-import com.itransition.courseproject.repository.UserRepository;
+import com.itransition.courseproject.repository.user.UserRepository;
 import com.itransition.courseproject.security.oauth2.user.OAuth2UserInfo;
 import com.itransition.courseproject.security.oauth2.user.OAuth2UserInfoFactory;
 import lombok.RequiredArgsConstructor;

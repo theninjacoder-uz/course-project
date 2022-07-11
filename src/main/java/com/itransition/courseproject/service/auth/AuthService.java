@@ -7,7 +7,7 @@ import com.itransition.courseproject.dto.response.auth.JwtTokenResponse;
 import com.itransition.courseproject.exception.auth.JwtValidationException;
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.Status;
-import com.itransition.courseproject.repository.UserRepository;
+import com.itransition.courseproject.repository.user.UserRepository;
 import com.itransition.courseproject.security.jwt.JWTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

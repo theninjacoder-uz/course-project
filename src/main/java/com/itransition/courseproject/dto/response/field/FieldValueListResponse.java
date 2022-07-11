@@ -1,7 +1,7 @@
 package com.itransition.courseproject.dto.response.field;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.itransition.courseproject.dto.response.Response;
-import com.itransition.courseproject.dto.response.collection.FieldResponse;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,4 +13,6 @@ import java.util.Map;
 public class FieldValueListResponse implements Response {
     private List<FieldResponse> types;
     private Map<Long, List<FieldValueResponse>> values;
+    @JsonProperty("owner_id")
+    private long ownerId;
 }

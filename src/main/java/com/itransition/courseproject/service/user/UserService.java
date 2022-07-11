@@ -13,7 +13,7 @@ import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.Language;
 import com.itransition.courseproject.model.enums.Role;
 import com.itransition.courseproject.model.enums.Status;
-import com.itransition.courseproject.repository.UserRepository;
+import com.itransition.courseproject.repository.user.UserRepository;
 import com.itransition.courseproject.service.CRUDService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

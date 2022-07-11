@@ -1,4 +1,4 @@
-package com.itransition.courseproject.dto.request.collection;
+package com.itransition.courseproject.dto.request.item;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

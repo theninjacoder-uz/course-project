@@ -1,7 +1,7 @@
 package com.itransition.courseproject.controller.item;
 
 import com.itransition.courseproject.dto.request.comment.CommentRequest;
-import com.itransition.courseproject.service.comment.CommentService;
+import com.itransition.courseproject.service.item.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

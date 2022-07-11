@@ -5,7 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.itransition.courseproject.dto.response.collection.CollectionResponse;
 import com.itransition.courseproject.dto.response.comment.CommentResponse;
 import com.itransition.courseproject.model.entity.collection.Collection;
-import com.itransition.courseproject.model.entity.comment.Comment;
+import com.itransition.courseproject.model.entity.item.Comment;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.context.annotation.Bean;

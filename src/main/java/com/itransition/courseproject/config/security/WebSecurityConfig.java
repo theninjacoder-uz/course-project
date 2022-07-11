@@ -57,9 +57,10 @@ public class WebSecurityConfig {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, ControllerUtils.OPEN_PATH)
                 .permitAll()
-                .antMatchers(HttpMethod.GET, ControllerUtils.OPEN_FILES)
-                .permitAll()
-                .antMatchers("/api/v1/auth/**", "/oauth2/**")
+//                .antMatchers(HttpMethod.GET, ControllerUtils.OPEN_FILES)
+//                .permitAll()
+//                .antMatchers("/api/v1/auth/**", "/oauth2/**")
+                .antMatchers("/api/v1/auth/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -86,7 +87,7 @@ public class WebSecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "*"));
         configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(List.of("*"));

@@ -1,9 +1,9 @@
-package com.itransition.courseproject.service.collection;
+package com.itransition.courseproject.service.item;
 
-import com.itransition.courseproject.dto.request.collection.ItemRequest;
+import com.itransition.courseproject.dto.request.item.ItemRequest;
 import com.itransition.courseproject.dto.request.field.FieldValueRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
-import com.itransition.courseproject.dto.response.collection.FieldResponse;
+import com.itransition.courseproject.dto.response.field.FieldResponse;
 import com.itransition.courseproject.dto.response.comment.CommentResponse;
 import com.itransition.courseproject.dto.response.field.FieldValueListResponse;
 import com.itransition.courseproject.dto.response.field.FieldValueResponse;
@@ -14,16 +14,16 @@ import com.itransition.courseproject.exception.auth.AuthorizationRequiredExcepti
 import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
 import com.itransition.courseproject.model.entity.collection.Collection;
 import com.itransition.courseproject.model.entity.collection.Field;
-import com.itransition.courseproject.model.entity.collection.FieldValue;
-import com.itransition.courseproject.model.entity.collection.Item;
-import com.itransition.courseproject.model.entity.comment.Comment;
+import com.itransition.courseproject.model.entity.item.FieldValue;
+import com.itransition.courseproject.model.entity.item.Item;
+import com.itransition.courseproject.model.entity.item.Comment;
 import com.itransition.courseproject.model.entity.tag.Tag;
 import com.itransition.courseproject.model.enums.Status;
-import com.itransition.courseproject.repository.CommentRepository;
+import com.itransition.courseproject.repository.item.CommentRepository;
 import com.itransition.courseproject.repository.collection.CollectionRepository;
 import com.itransition.courseproject.repository.collection.FieldRepository;
-import com.itransition.courseproject.repository.collection.FieldValueRepository;
-import com.itransition.courseproject.repository.collection.ItemRepository;
+import com.itransition.courseproject.repository.item.FieldValueRepository;
+import com.itransition.courseproject.repository.item.ItemRepository;
 import com.itransition.courseproject.repository.tag.TagRepository;
 import com.itransition.courseproject.service.CRUDService;
 import com.itransition.courseproject.util.AuthenticationUtil;
@@ -32,6 +32,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -94,6 +95,7 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
         );
     }
 
+    @Transactional
     @Override
     public APIResponse update(Long id, ItemRequest itemRequest) {
         if (authorizeItemOwner(id)) {
@@ -107,12 +109,11 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
                 .map(FieldValueRequest::getFieldId)
                 .collect(Collectors.toList());
         final List<Field> fields = fieldRepository.findAllById(filedIds);
-        final List<FieldValue> fieldValues = itemRequest.getFieldValues().stream().map(fieldValue -> {
-            return new FieldValue(fieldValue.getValue(), item,
-                    fields.stream().filter(f -> f.getId() == fieldValue.getFieldId()).findFirst().orElseThrow(
-                            () -> new ResourceNotFoundException(FIELD_ENG, FIELD_RUS, String.valueOf(fieldValue.getFieldId())))
-            );
-        }).collect(Collectors.toList());
+        final List<FieldValue> fieldValues =
+                itemRequest.getFieldValues().stream().map(fieldValue -> new FieldValue(fieldValue.getValue(), item,
+                fields.stream().filter(f -> f.getId() == fieldValue.getFieldId()).findFirst().orElseThrow(
+                        () -> new ResourceNotFoundException(FIELD_ENG, FIELD_RUS, String.valueOf(fieldValue.getFieldId())))
+        )).collect(Collectors.toList());
 
         item.setName(itemRequest.getName());
         item.setTags(tags);
@@ -122,13 +123,14 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
         return getItemResponse(item.getId(), item.getCollection().getUser().getId());
     }
 
+    @Transactional
     @Override
     public APIResponse delete(Long id) {
         if (authorizeItemOwner(id)) {
             throw new AuthorizationRequiredException();
         }
-        commentRepository.deleteAllByItem_Id(id);
-        fieldValueRepository.deleteAllByItem_Id(id);
+        commentRepository.deleteAllByItemId(id);
+        fieldValueRepository.deleteAllByItemId(id);
         itemRepository.deleteById(id);
         return APIResponse.success(HttpStatus.OK);
     }
@@ -173,17 +175,19 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
     }
 
     private FieldValueListResponse getFieldValueListResponse(Long collectionId) {
-        final FieldValueListResponse fieldList = new FieldValueListResponse();
+        final FieldValueListResponse response = new FieldValueListResponse();
 
-        fieldList.setTypes(fieldRepository.findAllByCollection_Id(collectionId)
+        response.setOwnerId(collectionRepository.findById(collectionId)
+                .orElseThrow(()->new ResourceNotFoundException(COLLECTION_ENG, COLLECTION_RUS, collectionId))
+                .getUser().getId());
+        response.setTypes(fieldRepository.findAllByCollection_Id(collectionId)
                 .stream().map(elm -> modelMapper.map(elm, FieldResponse.class)).collect(Collectors.toList()));
-        fieldList.setValues(fieldValueRepository
+        response.setValues(fieldValueRepository
                 .findAllByItem_CollectionId(collectionId)
                 .stream()
                 .map(item -> new FieldValueResponse(item.getValue(), item.getItem().getId(), item.getField().getId()))
                 .collect(Collectors.groupingBy(FieldValueResponse::getItemId)));
-
-        return fieldList;
+        return response;
     }
 
     private boolean authorizeItemOwner(long itemId) {

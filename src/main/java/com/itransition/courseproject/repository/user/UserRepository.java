@@ -1,4 +1,4 @@
-package com.itransition.courseproject.repository;
+package com.itransition.courseproject.repository.user;
 
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.Status;
@@ -13,12 +13,11 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    @Query("select u from User u where u.email = ?1 and u.status <> ?2")
+
     Optional<User> findByEmailAndStatusIsNot(String email, Status status);
 
     Optional<User> findByEmailAndStatus(String email, Status status);
 
-    @Query("select (count(u) > 0) from User u where u.email = ?1 and u.status = ?2")
     Boolean existsByEmailAndStatus(String email, Status status);
 
     @Modifying

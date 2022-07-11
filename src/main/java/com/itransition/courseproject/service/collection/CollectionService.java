@@ -4,19 +4,21 @@ import com.itransition.courseproject.dto.request.collection.CollectionRequest;
 import com.itransition.courseproject.dto.request.field.FieldRequest;
 import com.itransition.courseproject.dto.response.APIResponse;
 import com.itransition.courseproject.dto.response.collection.CollectionResponse;
-import com.itransition.courseproject.dto.response.collection.FieldResponse;
+import com.itransition.courseproject.dto.response.field.FieldResponse;
 import com.itransition.courseproject.exception.auth.AuthorizationRequiredException;
 import com.itransition.courseproject.exception.resource.FileProcessingException;
 import com.itransition.courseproject.exception.resource.ResourceNotFoundException;
 import com.itransition.courseproject.exception.user.UserNotFoundException;
 import com.itransition.courseproject.model.entity.collection.Collection;
 import com.itransition.courseproject.model.entity.collection.Field;
-import com.itransition.courseproject.model.entity.collection.FieldValue;
+import com.itransition.courseproject.model.entity.item.FieldValue;
 import com.itransition.courseproject.model.entity.collection.Topic;
 import com.itransition.courseproject.model.entity.user.User;
 import com.itransition.courseproject.model.enums.Status;
-import com.itransition.courseproject.repository.CommentRepository;
-import com.itransition.courseproject.repository.UserRepository;
+import com.itransition.courseproject.repository.item.CommentRepository;
+import com.itransition.courseproject.repository.item.FieldValueRepository;
+import com.itransition.courseproject.repository.item.ItemRepository;
+import com.itransition.courseproject.repository.user.UserRepository;
 import com.itransition.courseproject.repository.collection.*;
 import com.itransition.courseproject.service.CRUDService;
 import com.itransition.courseproject.util.AuthenticationUtil;
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -81,13 +84,13 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
         return APIResponse.success(response);
     }
 
-//    public APIResponse  (int page, int size, String order, String[] categories) {
+    //    public APIResponse  (int page, int size, String order, String[] categories) {
 //        categories = (categories == null || categories.length == 0) ? new String[]{DEFAULT_SORT_FIELD} : categories;
 //        Page<Collection> list = collectionRepository
 //                .findAll(PageRequest.of(page, size, Sort.Direction.valueOf(order), categories));
 //        return APIResponse.success(getCollectionResponseList(list.getContent()));
 //    }
-
+    @Transactional
     @Override
     public APIResponse update(Long id, CollectionRequest collectionRequest) {
         if (authorizeCollectionOwner(id)) {
@@ -112,15 +115,16 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
                 collectionRequest.getCustomFields()));
     }
 
+    @Transactional
     @Override
     public APIResponse delete(Long id) {
         if (authorizeCollectionOwner(id)) {
             throw new AuthorizationRequiredException();
         }
-        fieldValueRepository.deleteAllByFieldIn(fieldRepository.findAllByCollection_Id(id));
-        fieldRepository.deleteAllByCollection_Id(id);
-        commentRepository.deleteAllByItemIn(itemRepository.findAllByCollectionId(id));
-        itemRepository.deleteAllByCollection_Id(id);
+        fieldValueRepository.deleteFieldValuesByField_CollectionId(id);
+        fieldRepository.deleteFieldsByCollectionId(id);
+        commentRepository.deleteCommentsByItem_Collection_Id(id);
+        itemRepository.deleteAllByCollectionId(id);
         collectionRepository.deleteById(id);
         return APIResponse.success(true);
     }
@@ -156,10 +160,7 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
     private List<CollectionResponse> getCollectionResponseList(List<Collection> collectionList) {
         return collectionList
                 .stream()
-                .map(collection -> {
-                    CollectionResponse response = modelMapper.map(collection, CollectionResponse.class);
-                    return response;
-                }).collect(Collectors.toList());
+                .map(collection -> modelMapper.map(collection, CollectionResponse.class)).collect(Collectors.toList());
     }
 
     public void loadCSVFile(HttpServletResponse response, long collectionId, String lang) {
