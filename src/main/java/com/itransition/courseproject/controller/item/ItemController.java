@@ -43,4 +43,9 @@ public class ItemController extends CRUDController<ItemService, Long, ItemReques
             @RequestParam(name = "isLiked") boolean isLiked){
         return ResponseEntity.ok(service.updateItemLike(userId, itemId, isLiked));
     }
+
+    @GetMapping("/latest")
+    public ResponseEntity<APIResponse> getLatestItems(){
+        return ResponseEntity.ok(service.getLatestItems());
+    }
 }

@@ -29,6 +29,7 @@ import com.itransition.courseproject.service.CRUDService;
 import com.itransition.courseproject.util.AuthenticationUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -111,9 +112,9 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
         final List<Field> fields = fieldRepository.findAllById(filedIds);
         final List<FieldValue> fieldValues =
                 itemRequest.getFieldValues().stream().map(fieldValue -> new FieldValue(fieldValue.getValue(), item,
-                fields.stream().filter(f -> f.getId() == fieldValue.getFieldId()).findFirst().orElseThrow(
-                        () -> new ResourceNotFoundException(FIELD_ENG, FIELD_RUS, String.valueOf(fieldValue.getFieldId())))
-        )).collect(Collectors.toList());
+                        fields.stream().filter(f -> f.getId() == fieldValue.getFieldId()).findFirst().orElseThrow(
+                                () -> new ResourceNotFoundException(FIELD_ENG, FIELD_RUS, String.valueOf(fieldValue.getFieldId())))
+                )).collect(Collectors.toList());
 
         item.setName(itemRequest.getName());
         item.setTags(tags);
@@ -150,6 +151,13 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
         return APIResponse.success(collect);
     }
 
+    public APIResponse getLatestItems() {
+        return APIResponse.success(itemRepository.findLatest10ItemIds()
+                .stream()
+                .map(this::getFieldValueListResponse)
+                .collect(Collectors.toList()));
+    }
+
     public APIResponse getItemsByCollectionId(Long collectionId) {
         return APIResponse.success(getFieldValueListResponse(collectionId));
     }
@@ -176,9 +184,8 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
 
     private FieldValueListResponse getFieldValueListResponse(Long collectionId) {
         final FieldValueListResponse response = new FieldValueListResponse();
-
         response.setOwnerId(collectionRepository.findById(collectionId)
-                .orElseThrow(()->new ResourceNotFoundException(COLLECTION_ENG, COLLECTION_RUS, collectionId))
+                .orElseThrow(() -> new ResourceNotFoundException(COLLECTION_ENG, COLLECTION_RUS, collectionId))
                 .getUser().getId());
         response.setTypes(fieldRepository.findAllByCollection_Id(collectionId)
                 .stream().map(elm -> modelMapper.map(elm, FieldResponse.class)).collect(Collectors.toList()));
@@ -191,7 +198,7 @@ public class ItemService implements CRUDService<Long, ItemRequest> {
     }
 
     private boolean authorizeItemOwner(long itemId) {
-        if(AuthenticationUtil.isAdmin()) {
+        if (AuthenticationUtil.isAdmin()) {
             return false;
         }
         final String email = String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal());

@@ -12,13 +12,11 @@ import java.util.List;
 
 @Repository
 public interface FieldRepository extends JpaRepository<Field, Long> {
+
     List<Field> findAllByCollection(Collection collection);
 
-
-    int deleteAllByCollection_Id(Long collectionId);
-
-    @Query(value = "SELECT collection_id FROM field GROUP BY collection_id ORDER BY COUNT(collection_id) DESC LIMIT 5", nativeQuery = true)
-    List<Long> findTopCollectionIds();
+//    @Query(value = "SELECT collection_id FROM field GROUP BY collection_id ORDER BY COUNT(collection_id) DESC LIMIT 5", nativeQuery = true)
+//    List<Long> findTopCollectionIds();
 
     List<Field> findAllByCollection_Id(Long id);
 

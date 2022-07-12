@@ -15,6 +15,9 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
 
+    @Query(value = "select collection_id from item group by collection_id order by count(collection_id) desc limit 5", nativeQuery = true)
+    List<Long> findTopCollectionIds();
+
     void deleteAllByCollectionId(Long id);
 
     Boolean existsByIdAndLikedUsers_Id(Long itemId, Long userId);
@@ -37,5 +40,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     boolean existsByIdAndCollection_UserEmailAndCollection_UserStatus(Long itemId, String email, Status status);
 
-    List<Item> findAllByCollectionId(Long collectionId);
+    @Query(value = "select i.collection_id from item i order by creation_date desc limit 10" , nativeQuery = true)
+    List<Long> findLatest10ItemIds();
 }

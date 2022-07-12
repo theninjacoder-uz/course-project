@@ -134,8 +134,8 @@ public class CollectionService implements CRUDService<Long, CollectionRequest> {
         return APIResponse.success(getCollectionResponseList(collectionRepository.findAll()));
     }
 
-    public APIResponse getLatestCollections() {
-        final List<Long> collectionIds = fieldRepository.findTopCollectionIds();
+    public APIResponse getTopCollections() {
+        final List<Long> collectionIds = itemRepository.findTopCollectionIds();
         return APIResponse.success(getCollectionResponseList(collectionRepository.findAllById(collectionIds)));
     }
 

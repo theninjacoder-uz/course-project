@@ -30,8 +30,8 @@ public class CollectionController extends CRUDController<CollectionService, Long
 //    }
 
     @GetMapping("/latest")
-    public ResponseEntity<?> getLatestCollections(){
-        return ResponseEntity.ok(service.getLatestCollections());
+    public ResponseEntity<?> getTopCollections(){
+        return ResponseEntity.ok(service.getTopCollections());
     }
 
     @GetMapping("/user/{userId}")
